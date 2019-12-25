@@ -23,18 +23,18 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
     - name: Build PlayCade.Common Pre-Release
-      if: github.ref == 'develop' || github.ref == 'release/*' || github.base_ref == 'develop'
+      if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/release/*' || github.base_ref == 'develop'
       run: |
         mkdir ${{ github.workspace }}/package
         dotnet build --configuration Release --version-suffix CI-$VERSION_SUFFIX --output ${{ github.workspace }}/package
     - name: Upload PlayCade.Common Pre-Release Artifact
       uses: actions/upload-artifact@v1
-      if: github.ref == 'develop' || github.ref == 'release/*' || github.base_ref == 'develop'
+      if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/release/*' || github.base_ref == 'develop'
       with:
         name: PreRelease-Nuget
         path: ${{ github.workspace }}/package
     - name: Deploy Pre-Release Nuget
-      if: github.ref == 'develop'
+      if: github.ref == 'refs/heads/develop'
       run: |
         for f in ${{ github.workspace }}/package/*.nupkg
         do
@@ -42,13 +42,13 @@ jobs:
         done
       shell: bash
     - name: Build PlayCade.Common Release
-      if: github.ref == 'master' || github.base_ref == 'master'
+      if: github.ref == 'refs/heads/master' || github.base_ref == 'master'
       run: |
         mkdir ${{ github.workspace }}/package
         dotnet build --configuration Release --output ${{ github.workspace }}/package
     - name: Upload PlayCade.Common Release Artifact
       uses: actions/upload-artifact@v1
-      if: github.ref == 'master' || github.base_ref == 'master'
+      if: github.ref == 'refs/heads/master' || github.base_ref == 'master'
       with:
         name: Release-Nuget
         path: ${{ github.workspace }}/package
