@@ -1,0 +1,117 @@
+name: Build & Release
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - release/*
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  Build-Deploy:
+    runs-on: ubuntu-latest
+    env: 
+      version_suffix: ""
+    steps:
+    - name: Set Environment Variables
+      run: echo ::set-env name=VERSION_SUFFIX::$(date +%Y%m%d%H%M%S)
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+    - name: Build PlayCade.Common Pre-Release
+      if: github.ref == 'develop' || github.ref == 'release/*' || github.base_ref == 'develop'
+      run: |
+        mkdir ${{ github.workspace }}/package
+        dotnet build --configuration Release --version-suffix CI-$VERSION_SUFFIX --output ${{ github.workspace }}/package
+    - name: Upload PlayCade.Common Pre-Release Artifact
+      uses: actions/upload-artifact@v1
+      if: github.ref == 'develop' || github.ref == 'release/*' || github.base_ref == 'develop'
+      with:
+        name: PreRelease-Nuget
+        path: ${{ github.workspace }}/package
+    - name: Deploy Pre-Release Nuget
+      if: github.ref == 'develop'
+      run: |
+        for f in ${{ github.workspace }}/package/*.nupkg
+        do
+          curl -vX PUT -u "PlayCade-Emu:${{ secrets.GITHUB_TOKEN }}" -F package=@$f https://nuget.pkg.github.com/PlayCade-Emu
+        done
+      shell: bash
+    - name: Build PlayCade.Common Release
+      if: github.ref == 'master' || github.base_ref == 'master'
+      run: |
+        mkdir ${{ github.workspace }}/package
+        dotnet build --configuration Release --output ${{ github.workspace }}/package
+    - name: Upload PlayCade.Common Release Artifact
+      uses: actions/upload-artifact@v1
+      if: github.ref == 'master' || github.base_ref == 'master'
+      with:
+        name: Release-Nuget
+        path: ${{ github.workspace }}/package
+  
+  
+  
+  
+#   release:
+#     needs: [build]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Download Pre-Release Artifact
+#         uses: actions/download-artifact@v1.0.0
+#         with:
+#           # Artifact name
+#           name: PreRelease-Nuget
+#           # Destination path
+#           path: ${{ github.workspace }}
+#         if: github.ref == 'develop' || github.base_ref == 'develop'
+#       - name: Deploy Pre-Release Nuget
+#         if: github.ref == 'develop' || github.base_ref == 'develop'
+#         run: |
+#           ls ${{ github.workspace }}
+#          for f in ${{ github.workspace }}/PreRelease-Nuget/*.nupkg
+#          do
+#            curl -vX PUT -u "PlayCade-Emu:${{ secrets.GITHUB_TOKEN }}" -F package=@$f https://nuget.pkg.github.com/PlayCade-Emu
+#          done
+#         shell: bash
+#       - name: Download Release Artifact
+#         uses: actions/download-artifact@v1.0.0
+#         with:
+#           # Artifact name
+#           name: Release-Nuget
+#           # Destination path
+#           path: ${{ github.workspace }}
+#         if: github.ref == 'master'
+#       - name: Deploy Release Nuget
+#         if: github.ref == 'master'
+#         run: |
+#           chmod -R a+r ${{ github.workspace }}/Release-Nuget
+#           for f in ${{ github.workspace }}/Release-Nuget/*.nupkg
+#           do
+#             curl -vX PUT -u "PlayCade-Emu:${{ secrets.GITHUB_TOKEN }}" -F package=@$f https://nuget.pkg.github.com/PlayCade-Emu
+#           done
+#         shell: bash
+
+
+#name: prerelease NuGet
+#
+#\
+#  build:
+#    runs-on: ubuntu-latest
+#    # also works with windows-latest and macos-latest
+#    steps:
+#    - name: Checkout repository
+#      uses: actions/checkout@v1
+#    - name: Build with dotnet
+#      run: dotnet build --configuration Release --version-suffix prerelease-$(date +%Y%m%d_%H:%M:%S)
+#      shell: bash
+#    - name: Publish nuget
+#      run: |
+#           for f in ./[repository]/bin/Release/*.nupkg
+#           do
+#             curl -vX PUT -u "[user]:${{ secrets.GHPackagesToken }}" -F package=@$f https://nuget.pkg.github.com/[user]/
+#           done
+#      shell: bash
