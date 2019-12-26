@@ -3,7 +3,7 @@ using PlayCade.Common.Models;
 
 namespace PlayCade.Common.Interfaces
 {
-    public interface Core
+    public interface ICore
     {
         void Run(string rom);
         MetaData MetaData();
