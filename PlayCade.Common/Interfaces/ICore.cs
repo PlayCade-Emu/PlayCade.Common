@@ -5,7 +5,7 @@ namespace PlayCade.Common.Interfaces
 {
     public interface ICore
     {
-        void Run(string rom);
+        void Run(byte[] rom);
         MetaData MetaData();
     }
 }
