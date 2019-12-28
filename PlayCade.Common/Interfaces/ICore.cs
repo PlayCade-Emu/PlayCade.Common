@@ -7,5 +7,6 @@ namespace PlayCade.Common.Interfaces
     {
         void Run(byte[] rom);
         MetaData MetaData();
+        void DisplayMetadata(); //Temporary Method to help with tesing plugin functionality
     }
 }
