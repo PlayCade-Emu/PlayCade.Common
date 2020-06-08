@@ -26,6 +26,7 @@ jobs:
       if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/release/*' || github.base_ref == 'develop'
       run: |
         mkdir ${{ github.workspace }}/package
+        cd src
         dotnet build --configuration Release --version-suffix CI-$VERSION_SUFFIX --output ${{ github.workspace }}/package
     - name: Upload PlayCade.Common Pre-Release Artifact
       uses: actions/upload-artifact@v1
