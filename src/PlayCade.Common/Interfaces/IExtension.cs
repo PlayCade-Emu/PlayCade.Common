@@ -1,6 +1,6 @@
-namespace PlayCade.Core.Interfaces
+namespace PlayCade.Common.Interfaces
 {
-    public interface IPcExtension
+    public interface IExtension
     {
         /// <summary>
         /// Name of the extension
@@ -38,8 +38,8 @@ namespace PlayCade.Core.Interfaces
         void OnStop();
         
         /// <summary>
-        /// OnClose is called when the extension is closing
+        /// OnFinish is called when the extension is closing
         /// </summary>
-        void OnClose();
+        void OnFinish();
     }
 }
